@@ -1,0 +1,23 @@
+<!--Pagina provisional, aquí debería mostrarse el resultado de la operación-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Resultados</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+       <h1>Resultados</h1>
+       <p>Objetivo seleccionado: {{ data.objetivo }}</p>
+       <p>Coefficientes de la función objetivo:</p>
+       <ul>
+           <li>C1: {{ data.cffCj1 }}</li>
+           <li>C2: {{ data.cffCj2 }}</li>
+       </ul>
+       <p>Restricciones:</p>
+       <ul>
+           <li>R1: {{ data.cffR11 }}X1 + {{ data.cffR12 }}X2 {{ data.operador1 }} {{ data.valorR1 }}</li>
+       </ul>
+    </body>
+</html>

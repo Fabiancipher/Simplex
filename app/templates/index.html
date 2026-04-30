@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Calculadora Simplex</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <h1>Calculadora Simplex</h1>
+        <!--Esto es la tabla que contiene el formulario de envio-->
+        <form method="POST" action="/solve">
+        <table>    
+            <!--Cantidad de variables y restricciones-->
+            <tr>
+                <td>
+                    Numero de variables: <input type="text" id="numVariables" name="numVariables" value="3">
+                    Numero de restricciones: <input type="text" id="numRestricciones" name="numRestricciones" value="1">
+                    <!--TODO: Esto debería generar la tabla dinámicamente-->
+                    <button>Generar Tabla</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table id="tablaSimplex">
+                    <tbody>
+                        <tr>
+                            <td>
+                            <table> <!--Función Objetivo-->
+                                <tbody>
+                                    <tr>
+                                      <td>
+                                        <select id="objetivo" name="objetivo">
+                                            <option value="max">Maximizar</option>
+                                            <option value="min">Minimizar</option>
+                                        </select>
+                                        Z = 
+                                      </td>
+                                      <!-- TODO: Esto debería generarse de forma dinámica, quizás un script?-->
+                                      <td><input type="text" id="cffCj1" name="cffCj1" value="0"></td>   
+                                      <td>X1+</td>  
+                                      <td><input type="text" id="cffCj2" name="cffCj2" value="0"></td>   
+                                      <td>X2+</td>      
+                                    </tr>
+                                </tbody>
+                            </table>
+                            </td>
+                        </tr>
+                        <tr><td>Sujeto a: </td></tr> <!--Separador-->
+                        <tr>
+                            <table> <!--Restricciones-->
+                                <tbody>
+                                    <!--TODO: Lo mismo que con las variables de la función objetivo-->
+                                    <tr>
+                                      <td><input type="text" id="cffR11" name="cffR11" value="0"></td>   
+                                      <td>X1+</td>
+                                      <td><input type="text" id="cffR12" name="cffR12" value="0"></td>   
+                                      <td>X2+</td>
+                                      <td><select id="operador1" name="operador1">
+                                        <option value=">=">≥</option>
+                                        <option value="<=">≤</option>
+                                        <option value="=">=</option>
+                                      </select></td>
+                                      <td><input type="text" id="valorR1" name="valorR1" value="0"></td>  
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </tr>
+                    </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button type="submit">Calcular</button>
+                </td>
+            </tr>
+        </table>
+        </form>
+    </body>
+</html>
