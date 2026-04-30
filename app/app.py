@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request#, redirect, url_for 
+from static.simplex import Simplex
 
 app = Flask(__name__)
 
@@ -21,7 +22,11 @@ def resolver():
             "operador1": request.form.get("operador1"),
             "valorR1": request.form.get("valorR1")
         }
-    return render_template("resultados.html", data=data)
+        #Misma cuestión, la función objetivo y las restricciones deberían generarse dinámicamente
+        objective = (data["objetivo"], f"{data['cffCj1']}x_1 + {data['cffCj2']}x_2")
+        constraints = [f"{data['cffR11']}x_1 + {data['cffR12']}x_2 {data['operador1']} {data['valorR1']}"]
+        Lp_system = Simplex(num_vars=2, constraints=constraints, objective_function=objective)
+    return render_template("resultados.html", data=Lp_system)
 
 if __name__ == "__main__":
     app.run(debug=True)

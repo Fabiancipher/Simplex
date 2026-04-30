@@ -9,15 +9,8 @@
     </head>
     <body>
        <h1>Resultados</h1>
-       <p>Objetivo seleccionado: {{ data.objetivo }}</p>
-       <p>Coefficientes de la función objetivo:</p>
-       <ul>
-           <li>C1: {{ data.cffCj1 }}</li>
-           <li>C2: {{ data.cffCj2 }}</li>
-       </ul>
-       <p>Restricciones:</p>
-       <ul>
-           <li>R1: {{ data.cffR11 }}X1 + {{ data.cffR12 }}X2 {{ data.operador1 }} {{ data.valorR1 }}</li>
-       </ul>
+       <!--FIXME: Muestra el diccionario, y el valor se muestra como Fraction(x,y). Se puede hacer más legible-->
+       <p>{{data.solution}}</p>
+       <p>{{data.optimize_val}}</p>
     </body>
 </html>
