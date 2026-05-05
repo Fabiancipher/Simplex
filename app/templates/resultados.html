@@ -9,8 +9,9 @@
     </head>
     <body>
        <h1>Resultados</h1>
-       <!--FIXME: Muestra el diccionario, y el valor se muestra como Fraction(x,y). Se puede hacer más legible-->
-       <p>{{data.solution}}</p>
-       <p>{{data.optimize_val}}</p>
+       <!--TODO: Deberían mostrarse todas las variables-->
+       <p>X1: {{data.solution['x_1']}}</p>
+       <p>X2: {{data.solution['x_2']}}</p>
+       <p>Valor optimo: {{data.optimize_val}}</p>
     </body>
 </html>
