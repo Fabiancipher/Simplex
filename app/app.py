@@ -11,8 +11,52 @@ def index():
 @app.route("/solve", methods=["GET", "POST"])
 def resolver():
     if request.method == "POST":
-        #data = {} ; Inicializar vacio
-        #data["objetivo"] = request.form.get("objetivo")... ; Añadir datos. Quizás en un bucle?
+        #Obtener numero de variables y restricciones. Se suma 1 para los rangos
+        num_variables = int(request.form.get("numVariables"))+1
+        num_restricciones = int(request.form.get("numRestricciones"))+1
+        
+        data = {} #Inicializar diccionario vacio
+        data["objetivo"] = request.form.get("objetivo") #Añadir objetivo
+        
+        #Añadir coeficientes de la funcion objetivo a una lista
+        coeficientes_objetivo = []
+        for j in range(1, num_variables):
+            coeficiente = request.form.get(f"cffCj_v{j}")
+            if(coeficiente!=None):
+                coeficientes_objetivo.append(coeficiente)
+        data["coeficientes"] = coeficientes_objetivo
+        
+        #Añadir las partes de las restricciones a multiples listas, por su comportamiento queda en orden
+        coeficientes_restricciones = [] #Esto es una matriz
+        operadores = []
+        lado_derecho = []
+        for i in range(1, num_restricciones): #Restriccion a restriccion
+            restriccion_n = []
+            
+            operador = request.form.get(f"operador_r{i}")
+            if(operador!=None):
+                operadores.append(operador)
+            
+            valor = request.form.get(f"valorR{i}")
+            if(valor!=None):
+                lado_derecho.append(valor)
+                
+            for j in range (1, num_variables): #Variable a variable
+                restriccion = request.form.get(f"cffR{i}_v{j}")
+                if(restriccion!=None):
+                    restriccion_n.append(restriccion)
+            coeficientes_restricciones.append(restriccion_n)
+            
+        data["restricciones"] = coeficientes_restricciones
+        data["operadores"] = operadores
+        data["valores"] = lado_derecho
+        #Si se quisieran generar objetos de tipo, por ejemplo, "Restriccion", si este recibe una lista de coeficientes,
+        #un operador y un lado derecho, se puede acceder al diccionario con la clave y un indice; ergo:
+        #data.get("restricciones")[i] y así con los demás
+        
+        #Versión anterior
+        
+        """
         data={
             "objetivo": request.form.get("objetivo"),
             "cffCj1": request.form.get("cffCj1"),
@@ -26,7 +70,8 @@ def resolver():
         objective = (data["objetivo"], f"{data['cffCj1']}x_1 + {data['cffCj2']}x_2")
         constraints = [f"{data['cffR11']}x_1 + {data['cffR12']}x_2 {data['operador1']} {data['valorR1']}"]
         Lp_system = Simplex(num_vars=2, constraints=constraints, objective_function=objective)
-    return render_template("resultados.html", data=Lp_system)
+        """
+    return render_template("resultados.html", data=data)
 
 if __name__ == "__main__":
     app.run(debug=True)

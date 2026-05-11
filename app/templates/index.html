@@ -5,6 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>Calculadora Simplex</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     </head>
     <body>
         <h1>Calculadora Simplex</h1>
@@ -14,58 +15,15 @@
             <!--Cantidad de variables y restricciones-->
             <tr>
                 <td>
-                    Numero de variables: <input type="text" id="numVariables" name="numVariables" value="3">
-                    Numero de restricciones: <input type="text" id="numRestricciones" name="numRestricciones" value="1">
-                    <!--TODO: Esto debería generar la tabla dinámicamente-->
-                    <button>Generar Tabla</button>
+                    Numero de variables: <input type="number" id="numVariables" name="numVariables" value="3" min="1">
+                    Numero de restricciones: <input type="number" id="numRestricciones" name="numRestricciones" value="3" min="1">
+                    <button type="button" id="generarBtn">Generar Tabla</button>
                 </td>
             </tr>
             <tr>
                 <td>
                     <table id="tablaSimplex">
-                    <tbody>
-                        <tr>
-                            <td>
-                            <table> <!--Función Objetivo-->
-                                <tbody>
-                                    <tr>
-                                      <td>
-                                        <select id="objetivo" name="objetivo">
-                                            <option value="maximize">Maximizar</option>
-                                            <option value="minimize">Minimizar</option>
-                                        </select>
-                                        Z = 
-                                      </td>
-                                      <!-- TODO: Esto debería generarse de forma dinámica, quizás un script?-->
-                                      <td><input type="text" id="cffCj1" name="cffCj1" value="0"></td>   
-                                      <td>X1+</td>  
-                                      <td><input type="text" id="cffCj2" name="cffCj2" value="0"></td>   
-                                      <td>X2+</td>      
-                                    </tr>
-                                </tbody>
-                            </table>
-                            </td>
-                        </tr>
-                        <tr><td>Sujeto a: </td></tr> <!--Separador-->
-                        <tr>
-                            <table> <!--Restricciones-->
-                                <tbody>
-                                    <!--TODO: Lo mismo que con las variables de la función objetivo-->
-                                    <tr>
-                                      <td><input type="text" id="cffR11" name="cffR11" value="0"></td>   
-                                      <td>X1+</td>
-                                      <td><input type="text" id="cffR12" name="cffR12" value="0"></td>   
-                                      <td>X2+</td>
-                                      <td><select id="operador1" name="operador1">
-                                        <option value=">=">≥</option>
-                                        <option value="<=">≤</option>
-                                        <option value="=">=</option>
-                                      </select></td>
-                                      <td><input type="text" id="valorR1" name="valorR1" value="0"></td>  
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </tr>
+                    <tbody id="cuerpoTabla">
                     </tbody>
                     </table>
                 </td>
@@ -77,5 +35,160 @@
             </tr>
         </table>
         </form>
+
+        <script>
+            /**
+             * Genera dinámicamente la tabla Simplex con inputs para:
+             * - Función objetivo con coeficientes de las variables
+             * - Restricciones con coeficientes y operadores
+             * 
+             * Cada input tiene un id único con formato:
+             * - cffCj_v{numVariable}: coeficiente de variable j en función objetivo
+             * - cffR{numRestriccion}_v{numVariable}: coeficiente variable en restricción
+             * - valorR{numRestriccion}: valor derecho de la restricción
+             */
+            function generarTabla() {
+                const numVariables = parseInt(document.getElementById('numVariables').value);
+                const numRestricciones = parseInt(document.getElementById('numRestricciones').value);
+
+                if (numVariables <= 0 || numRestricciones <= 0) {
+                    alert('Por favor ingresa números mayores a 0');
+                    return;
+                }
+
+                const cuerpoTabla = document.getElementById('cuerpoTabla');
+                cuerpoTabla.innerHTML = ''; // Limpiar tabla anterior
+
+                // ===== FUNCIÓN OBJETIVO =====
+                let filaObjetivo = document.createElement('tr');
+                let celdaObjetivo = document.createElement('td');
+                
+                let tablaObjetivo = document.createElement('table');
+                let tbodyObjetivo = document.createElement('tbody');
+                
+                let trObjetivo = document.createElement('tr');
+                
+                // Select para maximizar/minimizar
+                let tdSelect = document.createElement('td');
+                let selectObjetivo = document.createElement('select');
+                selectObjetivo.id = 'objetivo';
+                selectObjetivo.name = 'objetivo';
+                selectObjetivo.innerHTML = `
+                    <option value="maximize">Maximizar</option>
+                    <option value="minimize">Minimizar</option>
+                `;
+                tdSelect.appendChild(selectObjetivo);
+                tdSelect.textContent = '';
+                tdSelect.appendChild(selectObjetivo);
+                tdSelect.appendChild(document.createTextNode(' Z = '));
+                trObjetivo.appendChild(tdSelect);
+
+                // Generar inputs para cada variable en función objetivo
+                for (let j = 1; j <= numVariables; j++) {
+                    // Input coeficiente
+                    let tdInput = document.createElement('td');
+                    let input = document.createElement('input');
+                    input.type = 'number';
+                    input.id = `cffCj_v${j}`;
+                    input.name = `cffCj_v${j}`;
+                    input.value = '0';
+                    input.step = '1';
+                    tdInput.appendChild(input);
+                    trObjetivo.appendChild(tdInput);
+
+                    // Label variable (X1, X2, etc.)
+                    let tdVariable = document.createElement('td');
+                    tdVariable.textContent = `X${j}`;
+                    if (j < numVariables) {
+                        tdVariable.textContent += ' +';
+                    }
+                    trObjetivo.appendChild(tdVariable);
+                }
+
+                tbodyObjetivo.appendChild(trObjetivo);
+                tablaObjetivo.appendChild(tbodyObjetivo);
+                celdaObjetivo.appendChild(tablaObjetivo);
+                filaObjetivo.appendChild(celdaObjetivo);
+                cuerpoTabla.appendChild(filaObjetivo);
+
+                // ===== SEPARADOR "Sujeto a:" =====
+                let filaSeparador = document.createElement('tr');
+                let tdSeparador = document.createElement('td');
+                tdSeparador.textContent = 'Sujeto a:';
+                filaSeparador.appendChild(tdSeparador);
+                cuerpoTabla.appendChild(filaSeparador);
+
+                // ===== RESTRICCIONES =====
+                let filaRestricciones = document.createElement('tr');
+                let celdaRestricciones = document.createElement('td');
+                
+                let tablaRestricciones = document.createElement('table');
+                let tbodyRestricciones = document.createElement('tbody');
+
+                // Generar cada restricción
+                for (let i = 1; i <= numRestricciones; i++) {
+                    let trRestriccion = document.createElement('tr');
+
+                    // Generar coeficientes para cada variable
+                    for (let j = 1; j <= numVariables; j++) {
+                        // Input coeficiente
+                        let tdInput = document.createElement('td');
+                        let input = document.createElement('input');
+                        input.type = 'number';
+                        input.id = `cffR${i}_v${j}`;
+                        input.name = `cffR${i}_v${j}`;
+                        input.value = '0';
+                        input.step = '1';
+                        tdInput.appendChild(input);
+                        trRestriccion.appendChild(tdInput);
+
+                        // Label variable
+                        let tdVariable = document.createElement('td');
+                        tdVariable.textContent = `X${j}`;
+                        if (j < numVariables) {
+                            tdVariable.textContent += ' +';
+                        }
+                        trRestriccion.appendChild(tdVariable);
+                    }
+
+                    // Select operador (<=, >=, =)
+                    let tdOperador = document.createElement('td');
+                    let selectOperador = document.createElement('select');
+                    selectOperador.id = `operador_r${i}`;
+                    selectOperador.name = `operador_r${i}`;
+                    selectOperador.innerHTML = `
+                        <option value=">=">&ge;</option>
+                        <option value="<=">&le;</option>
+                        <option value="=">=</option>
+                    `;
+                    tdOperador.appendChild(selectOperador);
+                    trRestriccion.appendChild(tdOperador);
+
+                    // Input valor derecho
+                    let tdValor = document.createElement('td');
+                    let inputValor = document.createElement('input');
+                    inputValor.type = 'number';
+                    inputValor.id = `valorR${i}`;
+                    inputValor.name = `valorR${i}`;
+                    inputValor.value = '0';
+                    inputValor.step = '1';
+                    tdValor.appendChild(inputValor);
+                    trRestriccion.appendChild(tdValor);
+
+                    tbodyRestricciones.appendChild(trRestriccion);
+                }
+
+                tablaRestricciones.appendChild(tbodyRestricciones);
+                celdaRestricciones.appendChild(tablaRestricciones);
+                filaRestricciones.appendChild(celdaRestricciones);
+                cuerpoTabla.appendChild(filaRestricciones);
+            }
+
+            // Event listener para el botón "Generar Tabla"
+            document.getElementById('generarBtn').addEventListener('click', generarTabla);
+
+            // Generar tabla al cargar la página
+            window.addEventListener('load', generarTabla);
+        </script>
     </body>
 </html>
