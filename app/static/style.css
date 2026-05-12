@@ -1,0 +1,43 @@
+body{
+    text-align: center;
+    table-layout: auto;
+}
+
+input{
+    text-align: center;
+    width: 50px;
+    padding: auto;
+    height: auto;
+}
+
+.tdSeparador{
+    color: blue;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    padding: 5px;
+}
+
+.formulario{
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.cuerpoTabla{
+    border: 1px solid black;
+    margin: auto;
+    align-self: center;
+    display: table-row;
+    border-collapse: collapse;
+    padding: 5px;
+}
+
+.tdBorde{
+    border: 1px solid black;
+    padding: 5px;
+    align-items: center;
+}
+
+.tablaSimplex{
+    margin: auto;
+    border-collapse: collapse;
+}

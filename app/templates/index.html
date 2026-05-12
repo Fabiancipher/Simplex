@@ -5,13 +5,13 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>Calculadora Simplex</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
         <h1>Calculadora Simplex</h1>
         <!--Esto es la tabla que contiene el formulario de envio-->
         <form method="POST" action="/solve">
-        <table>    
+        <table class="formulario">    
             <!--Cantidad de variables y restricciones-->
             <tr>
                 <td>
@@ -22,8 +22,8 @@
             </tr>
             <tr>
                 <td>
-                    <table id="tablaSimplex">
-                    <tbody id="cuerpoTabla">
+                    <table class="tablaSimplex">
+                    <tbody id="cuerpoTabla" class="cuerpoTabla">
                     </tbody>
                     </table>
                 </td>
@@ -114,6 +114,7 @@
                 // ===== SEPARADOR "Sujeto a:" =====
                 let filaSeparador = document.createElement('tr');
                 let tdSeparador = document.createElement('td');
+                tdSeparador.setAttribute('class', 'tdSeparador');
                 tdSeparador.textContent = 'Sujeto a:';
                 filaSeparador.appendChild(tdSeparador);
                 cuerpoTabla.appendChild(filaSeparador);
