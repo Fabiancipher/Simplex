@@ -11,7 +11,7 @@ input{
 }
 
 .tdSeparador{
-    color: blue;
+    color: rgb(255, 0, 0);
     border-top: 1px solid black;
     border-bottom: 1px solid black;
     padding: 5px;
@@ -20,6 +20,11 @@ input{
 .formulario{
     display: inline-block;
     margin-top: 20px;
+}
+
+.tablaRestricciones{
+    border-collapse: collapse;
+    margin: auto;
 }
 
 .cuerpoTabla{

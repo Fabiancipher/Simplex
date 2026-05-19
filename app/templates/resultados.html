@@ -1,15 +1,220 @@
-<!--Pagina provisional, aquí debería mostrarse el resultado de la operación-->
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Resultados</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-    </head>
-    <body>
-       <h1>Captura</h1>
-       <!--TODO: Deberían mostrarse todas las variables-->
-       <p>{{data}}</p>
-    </body>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Resultados Simplex</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .resultado-box {
+            display: inline-block;
+            background: #f0f8ff;
+            border: 2px solid #993333;
+            border-radius: 8px;
+            padding: 16px 32px;
+            margin: 16px auto;
+        }
+
+        .resultado-box h2 {
+            margin: 0 0 8px 0;
+            color: #da5041;
+        }
+
+        .resultado-box p {
+            margin: 4px 0;
+            font-size: 1.1em;
+        }
+
+        .iteracion-titulo {
+            margin-top: 24px;
+            color: #c85346;
+            border-bottom: 2px solid #9f1717;
+            padding-bottom: 4px;
+        }
+
+        .iteracion-optima {
+            color: green;
+            font-weight: bold;
+        }
+
+        table.simplex-iter {
+            border-collapse: collapse;
+            margin: 8px auto;
+        }
+
+        table.simplex-iter th,
+        table.simplex-iter td {
+            border: 1px solid #aaa;
+            padding: 5px 10px;
+            text-align: center;
+        }
+
+        table.simplex-iter thead th {
+            background: #d15b46;
+            color: white;
+        }
+
+        table.simplex-iter tr.fila-zj td {
+            background: #e8e8e8;
+            font-style: italic;
+        }
+
+        table.simplex-iter tr.fila-cjzj td {
+            background: #fffae0;
+            font-weight: bold;
+        }
+
+        table.simplex-iter tr.fila-z td {
+            background: #e0ffe0;
+            font-weight: bold;
+        }
+
+        .error-box {
+            background: #ffe0e0;
+            border: 2px solid red;
+            border-radius: 6px;
+            padding: 16px 32px;
+            display: inline-block;
+            margin: 20px auto;
+        }
+
+        .btn-volver {
+            display: inline-block;
+            margin: 24px auto 8px;
+            padding: 10px 28px;
+            background: #771f1f;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        .btn-volver:hover {
+            background: #662222;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Calculadora Simplex — Resultados</h1>
+
+    {% if error %}
+    <div class="error-box">
+        <strong>Error al resolver:</strong><br>{{ error }}
+    </div>
+
+    {% else %}
+    <!-- Resumen de la solución óptima -->
+    <div class="resultado-box">
+        <h2>Solución óptima{% if es_dual %} (Dual){% endif %}</h2>
+        <p><strong>Objetivo:</strong>
+            {{ "Maximizar" if maximizar else "Minimizar" }}
+        </p>
+        {% if es_dual %}
+        <p><strong>Método:</strong> Dual</p>
+        <hr>
+        <h3 style="margin:8px 0 4px;color:#ba4242;">Variables Duales</h3>
+        {% endif %}
+        {% for var, val in solucion.items() %}
+        <p>{{ var }} = {{ val }}</p>
+        {% endfor %}
+        <p><strong>Z = {{ z_optimo }}</strong></p>
+        {% if es_dual and solucion_primal %}
+        <hr>
+        <h3 style="margin:8px 0 4px;color:#ba4242;">Traducción al Primal</h3>
+        {% for var, val in solucion_primal.items() %}
+        <p>{{ var }} = {{ val }}</p>
+        {% endfor %}
+        <p><strong>Z = {{ z_optimo }}</strong></p>
+        {% endif %}
+        <p style="color:#666; font-size:.9em;">
+            ({{ num_iteraciones }} tabla{{ "s" if num_iteraciones != 1 else "" }})
+        </p>
+    </div>
+
+    <!-- Iteraciones -->
+    {% for it in iteraciones %}
+    <h3 class="iteracion-titulo">
+        {% if loop.first %}
+        Tabla inicial (Iteraci&oacute;n 0)
+        {% else %}
+        Iteraci&oacute;n {{ it.numero }}
+        {% endif %}
+        {% if it.optima %}
+        <span class="iteracion-optima"> &#10004; &Oacute;ptima</span>
+        {% endif %}
+    </h3>
+
+    {% if it.entrante is not none and it.saliente is not none %}
+    <p style="margin: 4px 0; color: #555;">
+        <strong>Variable que entra:</strong> {{ it.entrante }} &nbsp;|&nbsp; <strong>Variable que sale:</strong> {{ it.saliente }}
+    </p>
+    {% endif %}
+
+    <table class="simplex-iter">
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                {% for cj in it.coeficientes_cj %}
+                <th>{{ cj }}</th>
+                {% endfor %}
+                <th></th>
+            </tr>
+            <tr>
+                <th>Base</th>
+                <th>C<sub>B</sub></th>
+                {% for enc in it.encabezados %}
+                <th>{{ enc }}</th>
+                {% endfor %}
+                <th>RHS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fila in it.filas %}
+            <tr>
+                <td>{{ fila.base }}</td>
+                <td>{{ fila.cbase }}</td>
+                {% for c in fila.coefs %}
+                <td>{{ c }}</td>
+                {% endfor %}
+                <td>{{ fila.recurso }}</td>
+            </tr>
+            {% endfor %}
+
+            <!-- Fila Zj -->
+            <tr class="fila-zj">
+                <td colspan="2">Z<sub>j</sub></td>
+                {% for v in it.zj %}
+                <td>{{ v }}</td>
+                {% endfor %}
+                <td>{{ it.z }}</td>
+            </tr>
+
+            <!-- Fila Cj - Zj -->
+            <tr class="fila-cjzj">
+                <td colspan="2">C<sub>j</sub> – Z<sub>j</sub></td>
+                {% for v in it.cj_minus_zj %}
+                <td>{{ v }}</td>
+                {% endfor %}
+                <td>—</td>
+            </tr>
+        </tbody>
+    </table>
+    {% endfor %}
+    {% endif %}
+
+    <br>
+    <a class="btn-volver" href="{{ url_for('index') }}">← Nuevo problema</a>
+
+    {% if not error %}
+    <script>
+        // Limpiar datos guardados si la solución fue exitosa
+        sessionStorage.removeItem('simplexFormData');
+    </script>
+    {% endif %}
+</body>
+
 </html>
